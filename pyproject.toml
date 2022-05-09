@@ -1,11 +1,12 @@
 [tool.poetry]
-name = "forest_cover_type_prediction
+name = "forest_cover_type_prediction"
 version = "0.1.0"
 description = ""
 authors = ["Stanislav-3 <61240903+Stanislav-3@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+click = "^8.1.3"
 
 [tool.poetry.dev-dependencies]
 
