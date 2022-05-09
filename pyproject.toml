@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "temp_name"
+name = "forest_cover_type_prediction
 version = "0.1.0"
 description = ""
 authors = ["Stanislav-3 <61240903+Stanislav-3@users.noreply.github.com>"]
