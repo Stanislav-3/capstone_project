@@ -20,7 +20,7 @@ def cross_validate(X, y, model, n_splits=2):
         prediction = model.predict(X_test)
 
         scores['accuracy_score'] += accuracy_score(prediction, y_test)
-        scores['precision_score_micro'] += precision_score(prediction, y_test, average='micro')
+        scores['precision_score'] += precision_score(prediction, y_test, average='micro')
         scores['recall_score'] += recall_score(prediction, y_test, average='micro')
 
     return {key: value / n_splits for key, value in scores.items()}
