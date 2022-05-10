@@ -29,11 +29,50 @@ from src.forest_cover_type_prediction.cross_validation import cross_validate
     "--model_name",
     default="knn"
 )
+@click.option(
+    "-sc",
+    "--use_scaler",
+    default=True
+)
+@click.option(
+    "-nn",
+    "--n_neighbors",
+    default=10
+)
+@click.option(
+    "-p",
+    "--penalty",
+    default='l2'
+)
+@click.option(
+    "-mi",
+    "--max_iter",
+    default=1e5
+)
+@click.option(
+    "--tol",
+    default=1e-4
+)
+@click.option(
+    "--c",
+    default=1.0
+)
+@click.option(
+    "-rs",
+    "--random_state",
+    default=42
+)
 def train(
         source: Path,
         target: Path,
         model_name: str,
-
+        use_scaler: bool,
+        n_neighbors: int,
+        penalty: str,
+        max_iter: float,
+        tol: float,
+        c: float,
+        random_state: int
 ) -> None:
     X, y = get_dataset(source)
 
@@ -48,23 +87,26 @@ def train(
         hyperparams = {}
 
         if model_name == 'knn':
-            hyperparams['n_neighbors'] = 10
+            hyperparams['n_neighbors'] = n_neighbors
         else:
-            hyperparams['penalty'] = 'l2'
-            hyperparams['max_iter'] = 10e4
+            hyperparams['penalty'] = penalty
+            hyperparams['max_iter'] = max_iter
+            hyperparams['tol'] = tol
+            hyperparams['C'] = c
+            hyperparams['random_state'] = random_state
 
-
-        # mlflow.log_param('use_scaler', )
+        mlflow.log_param('use_scaler', use_scaler)
         for param_name, param_value in hyperparams.items():
             mlflow.log_param(param_name, param_value)
-        model = create_pipeline(use_scaler=True, model_type=model_name, hyperparams=hyperparams)
+
+        model = create_pipeline(use_scaler=use_scaler, model_type=model_name, hyperparams=hyperparams)
 
         dump(model, target)
         click.echo(f"Model is saved to {target}.")
 
-        model1_scores = cross_validate(X, y, model, n_splits=2)
+        model_scores = cross_validate(X, y, model, n_splits=2)
 
-        for metric_name, metric_value in model1_scores.items():
+        for metric_name, metric_value in model_scores.items():
             mlflow.log_metric(metric_name, metric_value)
 
-        click.echo(model1_scores)
+        click.echo(model_scores)
