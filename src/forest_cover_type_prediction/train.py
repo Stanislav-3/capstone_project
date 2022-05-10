@@ -24,7 +24,17 @@ from src.forest_cover_type_prediction.cross_validation import cross_validate
     type=click.Path(dir_okay=False, writable=True, path_type=Path),
     show_default=True,
 )
-def train(source: Path, target: Path) -> None:
+@click.option(
+    "-m",
+    "--model_name",
+    default="knn"
+)
+def train(
+        source: Path,
+        target: Path,
+        model_name: str,
+
+) -> None:
     X, y = get_dataset(source)
 
     def add_num(path=source, num=None):
@@ -35,13 +45,24 @@ def train(source: Path, target: Path) -> None:
         return str(path)[:dot_ind] + num + str(path)[dot_ind:]
 
     with mlflow.start_run():
-        model1 = create_pipeline(use_scaler=True, model_type='knn', hyperparams={'n_neighbors': 10})
-        mlflow.log_param('n_neighbors', 10)
+        hyperparams = {}
 
-        dump(model1, add_num(target, '1'))
+        if model_name == 'knn':
+            hyperparams['n_neighbors'] = 10
+        else:
+            hyperparams['penalty'] = 'l2'
+            hyperparams['max_iter'] = 10e4
+
+
+        # mlflow.log_param('use_scaler', )
+        for param_name, param_value in hyperparams.items():
+            mlflow.log_param(param_name, param_value)
+        model = create_pipeline(use_scaler=True, model_type=model_name, hyperparams=hyperparams)
+
+        dump(model, target)
         click.echo(f"Model is saved to {target}.")
 
-        model1_scores = cross_validate(X, y, model1, n_splits=2)
+        model1_scores = cross_validate(X, y, model, n_splits=2)
 
         for metric_name, metric_value in model1_scores.items():
             mlflow.log_metric(metric_name, metric_value)
