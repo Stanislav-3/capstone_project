@@ -1,5 +1,6 @@
 import click
 import pandas as pd
+import mlflow
 
 from pathlib import Path
 from joblib import dump
@@ -26,23 +27,23 @@ from src.forest_cover_type_prediction.cross_validation import cross_validate
 def train(source: Path, target: Path) -> None:
     X, y = get_dataset(source)
 
-    model1 = create_pipeline(use_scaler=True, model_type='knn', hyperparams={'n_neighbors': 10})
-    model2 = create_pipeline(use_scaler=True,
-                             model_type='logisticregression',
-                             hyperparams={
-                                 'penalty': 'l2',
-                                 'max_iter': 10e4
-                             })
+    def add_num(path=source, num=None):
+        if num is None:
+            return
 
-    def add_num(path, num):
         dot_ind = str(path).index('.')
         return str(path)[:dot_ind] + num + str(path)[dot_ind:]
 
-    dump(model1, add_num(target, '1'))
-    dump(model2, add_num(target, '2'))
+    with mlflow.start_run():
+        model1 = create_pipeline(use_scaler=True, model_type='knn', hyperparams={'n_neighbors': 10})
+        mlflow.log_param('n_neighbors', 10)
 
-    model1_scores = cross_validate(X, y, model1, n_splits=2)
-    model2_scores = cross_validate(X, y, model2, n_splits=2)
+        dump(model1, add_num(target, '1'))
+        click.echo(f"Model is saved to {target}.")
 
-    click.echo(model1_scores)
-    click.echo(model2_scores)
+        model1_scores = cross_validate(X, y, model1, n_splits=2)
+
+        for metric_name, metric_value in model1_scores.items():
+            mlflow.log_metric(metric_name, metric_value)
+
+        click.echo(model1_scores)
