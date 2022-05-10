@@ -1,4 +1,4 @@
 .DS_Store
 .idea/
 data/
-srs/forest_cover_type_prediction/__pycache__/
+src/forest_cover_type_prediction/__pycache__/
