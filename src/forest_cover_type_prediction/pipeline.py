@@ -1,5 +1,7 @@
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
 
 
 def create_pipeline(use_scaler: bool = False, model_type: str = 'knn', hyperparams: dict = {}) -> Pipeline:
