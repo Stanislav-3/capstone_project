@@ -12,6 +12,7 @@ sklearn = "^0.0"
 mlflow = "^1.25.1"
 
 [tool.poetry.dev-dependencies]
+mypy = "^0.950"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
