@@ -84,13 +84,6 @@ def train(
 ) -> None:
     X, y = get_dataset(source)
 
-    def add_num(path=source, num=None):
-        if num is None:
-            return
-
-        dot_ind = str(path).index('.')
-        return str(path)[:dot_ind] + num + str(path)[dot_ind:]
-
     with mlflow.start_run():
         hyperparams = {}
 
