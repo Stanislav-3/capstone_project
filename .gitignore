@@ -3,3 +3,4 @@
 data/
 src/forest_cover_type_prediction/__pycache__/
 mlruns/
+.mypy_cache/
