@@ -5,7 +5,7 @@ import mlflow
 from pathlib import Path
 from joblib import dump
 
-from src.forest_cover_type_prediction.data import get_dataset
+from src.forest_cover_type_prediction.data import get_dataset, to_csv
 from src.forest_cover_type_prediction.pipeline import create_pipeline, get_model
 from src.forest_cover_type_prediction.cross_validation import cross_validate
 from src.forest_cover_type_prediction.nested_cross_validation import nested_cross_validate
@@ -129,3 +129,26 @@ def train(
             X = StandardScaler().fit_transform(X)
         model_scores = nested_cross_validate(X, y, model, space)
         click.echo(model_scores)
+
+
+def make_submission(train_data_path="data/train.csv", test_data_path="data/test.csv"):
+    hyperparams = {
+        'penalty': 'l2',
+        'max_iter': 1e4,
+        'tol': 1e-3,
+        'C': 200,
+        'random_state': 42
+    }
+
+    X_train, y_train = get_dataset(train_data_path)
+    X_test, _ = get_dataset(test_data_path)
+
+    model = create_pipeline(use_scaler=True, model_type='linear_regression', hyperparams=hyperparams)
+
+    model.fit(X_train, y_train)
+
+    predictions = model.predict(X_test)
+
+    to_csv(predictions)
+
+
