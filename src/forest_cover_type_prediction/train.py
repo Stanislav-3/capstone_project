@@ -19,7 +19,8 @@ from sklearn.model_selection import KFold, train_test_split
     "-s",
     "--source",
     default="data/train.csv",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path)
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    show_default=True,
 )
 @click.option(
     "-t",
@@ -31,45 +32,54 @@ from sklearn.model_selection import KFold, train_test_split
 @click.option(
     "-m",
     "--model_name",
-    default="knn"
+    default="knn",
+    show_default=True,
 )
 @click.option(
     "-sc",
     "--use_scaler",
-    default=True
+    default=True,
+    show_default=True,
 )
 @click.option(
     "-nn",
     "--n_neighbors",
-    default=10
+    default=10,
+    show_default=True,
 )
 @click.option(
     "-p",
     "--penalty",
-    default='l2'
+    default='l2',
+    show_default=True,
 )
 @click.option(
     "-mi",
     "--max_iter",
-    default=1e5
+    default=1e5,
+    show_default=True,
 )
 @click.option(
     "--tol",
-    default=1e-4
+    default=1e-4,
+    show_default=True,
 )
 @click.option(
     "--c",
-    default=1.0
+    default=1.0,
+    show_default=True,
 )
 @click.option(
     "-rs",
     "--random_state",
-    default=42
+    default=42,
+    show_default=True,
 )
 @click.option(
     "-ncv",
     "--apply_nested_cv",
-    default=False
+    default=False,
+    show_default=True,
 )
 def train(
         source: Path,
