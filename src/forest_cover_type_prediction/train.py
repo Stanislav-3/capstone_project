@@ -10,6 +10,8 @@ from src.forest_cover_type_prediction.pipeline import create_pipeline, get_model
 from src.forest_cover_type_prediction.cross_validation import cross_validate
 from src.forest_cover_type_prediction.nested_cross_validation import nested_cross_validate
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import KFold, train_test_split
 
 
 @click.command()
@@ -132,23 +134,11 @@ def train(
 
 
 def make_submission(train_data_path="data/train.csv", test_data_path="data/test.csv"):
-    hyperparams = {
-        'penalty': 'l2',
-        'max_iter': 1e4,
-        'tol': 1e-3,
-        'C': 200,
-        'random_state': 42
-    }
-
     X_train, y_train = get_dataset(train_data_path)
     X_test, _ = get_dataset(test_data_path)
 
-    model = create_pipeline(use_scaler=True, model_type='linear_regression', hyperparams=hyperparams)
-
-    model.fit(X_train, y_train)
-
-    predictions = model.predict(X_test)
-
-    to_csv(predictions)
+    forest = RandomForestClassifier(n_estimators=50, criterion='gini', max_depth=33)
+    forest.fit(X_train, y_train)
+    to_csv(forest.predict(X_test))
 
 
