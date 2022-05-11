@@ -6,8 +6,10 @@ from pathlib import Path
 from joblib import dump
 
 from src.forest_cover_type_prediction.data import get_dataset
-from src.forest_cover_type_prediction.pipeline import create_pipeline
+from src.forest_cover_type_prediction.pipeline import create_pipeline, get_model
 from src.forest_cover_type_prediction.cross_validation import cross_validate
+from src.forest_cover_type_prediction.nested_cross_validation import nested_cross_validate
+from sklearn.preprocessing import StandardScaler
 
 
 @click.command()
@@ -62,6 +64,11 @@ from src.forest_cover_type_prediction.cross_validation import cross_validate
     "--random_state",
     default=42
 )
+@click.option(
+    "-ncv",
+    "--apply_nested_cv",
+    default=False
+)
 def train(
         source: Path,
         target: Path,
@@ -72,7 +79,8 @@ def train(
         max_iter: float,
         tol: float,
         c: float,
-        random_state: int
+        random_state: int,
+        apply_nested_cv: bool
 ) -> None:
     X, y = get_dataset(source)
 
@@ -109,4 +117,22 @@ def train(
         for metric_name, metric_value in model_scores.items():
             mlflow.log_metric(metric_name, metric_value)
 
+        click.echo(model_scores)
+
+    if apply_nested_cv:
+        click.echo("Applying nested CV")
+        space={}
+        if model_name == 'knn':
+            space['n_neighbors'] = [5, 10, 20]
+        else:
+            space['penalty'] = [penalty, ]
+            space['max_iter'] = [max_iter, ]
+            space['tol'] = [1e-3, 1e-4]
+            space['C'] = [0.2, 1]
+            space['random_state'] = [random_state, ]
+
+        model = get_model(model_name)
+        if use_scaler:
+            X = StandardScaler().fit_transform(X)
+        model_scores = nested_cross_validate(X, y, model, space)
         click.echo(model_scores)

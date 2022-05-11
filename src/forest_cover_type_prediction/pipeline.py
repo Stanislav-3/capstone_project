@@ -16,3 +16,12 @@ def create_pipeline(use_scaler: bool = False, model_type: str = 'knn', hyperpara
     steps.append(("classifier", model))
 
     return Pipeline(steps=steps)
+
+
+def get_model(model_type: str = 'knn', hyperparams: dict = {}):
+    if model_type == 'knn':
+        model = KNeighborsClassifier(**hyperparams)
+    else:
+        model = LogisticRegression(**hyperparams)
+
+    return model
